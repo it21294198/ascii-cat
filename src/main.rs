@@ -28,4 +28,7 @@ fn get_image(dir: &str,scale:u32){
 }
 fn main() {
     get_image("cat.png", 10);
+
+    qr2term::print_qr("https://rust-lang.org/");
+
 }
