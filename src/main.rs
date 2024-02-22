@@ -1,4 +1,6 @@
-use image::{GenericImageView};
+use std::io::{BufRead, Write};
+
+use image::GenericImageView;
 
 fn get_str_ascii(intent:u8)-> &'static str{
     let index = intent/32;
@@ -29,6 +31,19 @@ fn get_image(dir: &str,scale:u32){
 fn main() {
     get_image("cat.png", 10);
 
-    qr2term::print_qr("https://rust-lang.org/");
+    let _ = qr2term::print_qr("http://127.0.0.1:3000/");
+    
+    let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
+    for mut stream in listener.incoming().flatten(){
+        let mut rdr = std::io::BufReader::new(&mut stream);
+        loop{
+            let mut l = String::new();
+            rdr.read_line(&mut l).unwrap();
+            if l.trim().is_empty(){ break;}
+            print!("{l}");
+        }
+        stream.write_all(b"HTTP/1.1 200 OK\r\n\r\nHello!").unwrap();
+    }
+
 
 }
