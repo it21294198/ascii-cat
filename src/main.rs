@@ -34,6 +34,7 @@ fn main() {
     let _ = qr2term::print_qr("http://127.0.0.1:3000/");
     println!("http://127.0.0.1:3000/");
     
+    // web server part
     let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
     for mut stream in listener.incoming().flatten(){
         let mut rdr = std::io::BufReader::new(&mut stream);
@@ -45,4 +46,17 @@ fn main() {
         }
         stream.write_all(b"HTTP/1.1 200 OK\r\n\r\nHello!").unwrap();
     }
+
+    // web server part
+    // let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
+    // for mut stream in listener.incoming().flatten(){
+    //     let mut rdr = std::io::BufReader::new(&mut stream);
+    //     loop{
+    //         let mut l = String::new();
+    //         rdr.read_line(&mut l).unwrap();
+    //         if l.trim().is_empty(){ break;}
+    //         print!("{l}");
+    //     }
+    //     stream.write_all(b"HTTP/1.1 200 OK\r\n\r\nHello!").unwrap();
+    // }
 }
