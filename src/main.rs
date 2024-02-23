@@ -1,4 +1,6 @@
 use std::io::{BufRead, Write};
+use std::net::TcpListener;
+use std::io::prelude::*;
 
 use image::GenericImageView;
 
@@ -31,23 +33,39 @@ fn get_image(dir: &str,scale:u32){
 fn main() {
     get_image("cat.png", 10);
 
-    let _ = qr2term::print_qr("http://127.0.0.1:3000/");
-    println!("http://127.0.0.1:3000/");
+    let _ = qr2term::print_qr("http://127.0.0.1:3000/index.html");
+    println!("http://127.0.0.1:3000/index.html");
     
     // web server part
-    let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
-    for mut stream in listener.incoming().flatten(){
+    let listener = TcpListener::bind("127.0.0.1:3000").unwrap();
+    for mut stream in listener.incoming().flatten() {
         let mut rdr = std::io::BufReader::new(&mut stream);
-        loop{
-            let mut l = String::new();
-            rdr.read_line(&mut l).unwrap();
-            if l.trim().is_empty(){ break;}
-            print!("{l}");
+        let mut l = String::new();
+        rdr.read_line(&mut l).unwrap();
+        match l.trim().split(' ').collect::<Vec<_>>().as_slice() {
+            ["GET", resource, "HTTP/1.1"] => {
+                loop {
+                    let mut l = String::new();
+                    rdr.read_line(&mut l).unwrap();
+                    if l.trim().is_empty() {
+                        break;
+                    }
+                }
+                let mut p = std::path::PathBuf::new();
+                p.push("src");
+                p.push(resource.trim_start_matches("/"));
+
+                let response = match std::fs::read_to_string(&p) {
+                    Ok(content) => format!("HTTP/1.1 200 OK\r\n\r\n{}", content),
+                    Err(_) => "HTTP/1.1 404 NOT FOUND\r\n\r\n".to_string(),
+                };
+                stream.write_all(response.as_bytes()).unwrap();
+            }
+            _ => todo!(),
         }
-        stream.write_all(b"HTTP/1.1 200 OK\r\n\r\nHello!").unwrap();
     }
 
-    // web server part
+    // simple web server part
     // let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
     // for mut stream in listener.incoming().flatten(){
     //     let mut rdr = std::io::BufReader::new(&mut stream);
