@@ -32,6 +32,7 @@ fn main() {
     get_image("cat.png", 10);
 
     let _ = qr2term::print_qr("http://127.0.0.1:3000/");
+    println!("http://127.0.0.1:3000/");
     
     let listener = std::net::TcpListener::bind("127.0.0.1:3000").unwrap();
     for mut stream in listener.incoming().flatten(){
@@ -44,6 +45,4 @@ fn main() {
         }
         stream.write_all(b"HTTP/1.1 200 OK\r\n\r\nHello!").unwrap();
     }
-
-
 }
