@@ -30,14 +30,29 @@ fn get_image(dir: &str,scale:u32){
         }
     }
 }
-fn main() {
-    get_image("cat.png", 10);
 
-    let _ = qr2term::print_qr("http://127.0.0.1:3000/index.html");
-    println!("http://127.0.0.1:3000/index.html");
+use get_if_addrs::{get_if_addrs, IfAddr};
+
+fn main() {
+    let mut ip_address:String="".to_owned();
+    if let Ok(interfaces) = get_if_addrs() {
+        for interface in interfaces {
+            if let IfAddr::V4(addr) = interface.addr {
+                ip_address = addr.ip.to_string();
+                // println!("  IPv4 Address: {}", addr.ip);
+            }
+        }
+    } else {
+        println!("Failed to get network interfaces");
+    }
+
+    get_image("cat.png", 10);
+    let qr_code = format!("http://{}:3000/index.html",ip_address);
+    let _ = qr2term::print_qr(qr_code);
+    println!("http://{ip_address}:3000/index.html");
     
     // web server part
-    let listener = TcpListener::bind("127.0.0.1:3000").unwrap();
+    let listener = TcpListener::bind("192.168.1.22:3000").unwrap();
     for mut stream in listener.incoming().flatten() {
         let mut rdr = std::io::BufReader::new(&mut stream);
         let mut l = String::new();

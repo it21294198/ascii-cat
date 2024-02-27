@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 image = "0.24.3"
 qr2term = "0.3.1"
+get_if_addrs = "0.5"
